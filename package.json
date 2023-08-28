@@ -1,0 +1,29 @@
+{
+  "name": "lacny-web-backend",
+  "version": "1.0.0",
+  "description": "backend for lacny.cz website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JimmyTripleSix/lacny-web-backend.git"
+  },
+  "keywords": [
+    "backend",
+    "photography",
+    "travel"
+  ],
+  "author": "Jakub Lacný",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JimmyTripleSix/lacny-web-backend/issues"
+  },
+  "homepage": "https://github.com/JimmyTripleSix/lacny-web-backend#readme",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mongoose": "^7.4.5"
+  }
+}
