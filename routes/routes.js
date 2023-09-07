@@ -46,7 +46,6 @@ router.post('/login', async (req, res) => {
         res.status(400).json({message: 'bad username or password1'});
       } else {
         bcrypt.compare(req.body.password, user.passwordHash, async (err, result) => {
-          console.log(result + ' ' + req.body.password + ' ' + user.passwordHash);
           if (result) {
             var token = jwt.sign({username: user.username}, process.env.JWT_SECRET)
             res.cookie('jwt',token, { httpOnly: true, maxAge: 3600000 })
