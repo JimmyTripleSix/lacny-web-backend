@@ -9,6 +9,10 @@ const galleryPage = new mongoose.Schema({
     required: false,
     type: String
   },
+  route: {
+    required: false,
+    type: String
+  },
   entries: {
     required: false,
     type: [

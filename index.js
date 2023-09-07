@@ -2,8 +2,8 @@ require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser')
 const mongoConnection = process.env.DATABASE_URL;
-
 
 mongoose.connect(mongoConnection);
 const db = mongoose.connection;
@@ -18,6 +18,7 @@ db.once('connected', () => {
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser())
 
 app.listen(8066, () => {
     console.log(`Server Started at ${8066}`);
