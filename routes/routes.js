@@ -43,7 +43,7 @@ router.post('/login', async (req, res) => {
     } else {
       const user = await User.findOne({'username': req.body.username});
       if (user === null) {
-        res.status(400).json({message: 'bad username or password1'});
+        res.status(400).json({message: 'bad username or password'});
       } else {
         bcrypt.compare(req.body.password, user.passwordHash, async (err, result) => {
           if (result) {
@@ -51,7 +51,7 @@ router.post('/login', async (req, res) => {
             res.cookie('jwt',token, { httpOnly: true, maxAge: 3600000 })
             res.status(200).json({message: 'login successful'});
           } else {
-            res.status(400).json({'message': 'bad username or password2'});
+            res.status(400).json({message: 'bad username or password'});
           }
         })
       }
@@ -62,13 +62,19 @@ router.post('/login', async (req, res) => {
 });
 
 router.put('/page', async (req, res) => {
-  const data = new Page(
-    req.body
-  );
-
   try {
-    const dataToSave = await data.save();
-    res.status(200).json(dataToSave);
+    jwt.verify(req.cookies.jwt, process.env.JWT_SECRET, async (err, decoded) => {
+      if (err) {
+        console.log(err);
+        res.status(401).json({message: 'no jwt'});
+      } else {
+        const data = new Page(
+          req.body
+        );
+        const dataToSave = await data.save();
+        res.status(200).json(dataToSave);
+      }
+    })
   } catch (error) {
     res.status(400).json({message: error.message});
   }
@@ -94,15 +100,22 @@ router.get('/page/:id', async (req, res) => {
 
 router.patch('/page/:id', async (req, res) => {
   try {
-    const id = req.params.id;
-    const updatedData = req.body;
-    const options = { new: true };
+    jwt.verify(req.cookies.jwt, process.env.JWT_SECRET, async (err, decoded) => {
+      if (err) {
+        console.log(err);
+        res.status(401).json({message: 'no jwt'});
+      } else {
+        const id = req.params.id;
+        const updatedData = req.body;
+        const options = { new: true };
 
-    const result = await Page.findByIdAndUpdate(
-      id, updatedData, options
-    )
+        const result = await Page.findByIdAndUpdate(
+          id, updatedData, options
+        )
 
-    res.status(200).send(result);
+        res.status(200).send(result);
+      }
+    })
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -110,9 +123,16 @@ router.patch('/page/:id', async (req, res) => {
 
 router.delete('/page/:id', async (req, res) => {
   try {
-    const id = req.params.id;
-    const data = await Page.findByIdAndDelete(id);
-    res.status(200).json(data);
+    jwt.verify(req.cookies.jwt, process.env.JWT_SECRET, async (err, decoded) => {
+      if (err) {
+        console.log(err);
+        res.status(401).json({message: 'no jwt'});
+      } else {
+        const id = req.params.id;
+        const data = await Page.findByIdAndDelete(id);
+        res.status(200).json(data);
+      }
+    })
   }
   catch (error) {
     res.status(400).json({ message: error.message });
@@ -180,8 +200,28 @@ router.get('/image/:name', async (req, res) => {
     if (!fs.existsSync(path.resolve(imagePath + req.params.name))) {
       res.status(404).json({ message: 'image doesn\'t exist' })
     } else {
-      res.sendFile(path.resolve(imagePath + req.params.name));
+      res.status(200).sendFile(path.resolve(imagePath + req.params.name));
     }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+})
+
+router.delete('/image/:name', async (req, res) => {
+  try {
+    jwt.verify(req.cookies.jwt, process.env.JWT_SECRET, async (err, decoded) => {
+      if (err) {
+        console.log(err);
+        res.status(401).json({message: 'no jwt'});
+      } else {
+        if (!fs.existsSync(path.resolve(imagePath + req.params.name))) {
+          res.status(404).json({ message: 'image doesn\'t exist' })
+        } else {
+          res.unlink(path.resolve(imagePath + req.params.name));
+          res.status(200).json({message: 'delete successful'});
+        }
+      }
+    })
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
