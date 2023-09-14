@@ -6,27 +6,39 @@ const galleryPage = new mongoose.Schema({
     type: String
   },
   subTitle: {
-    required: false,
     type: String
   },
   route: {
-    required: false,
+    required: true,
     type: String
   },
+  keywords: {
+    type: [String]
+  },
+  description: {
+    type: String
+  },
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      required: true
+    },
+    coordinates: {
+      type: [Number],
+      required: true
+    }
+  },
   entries: {
-    required: false,
     type: [
       {
         imageUrl: {
-          required: false,
           type: String
         },
         text: {
-          required: false,
           type: String
         },
         verticalImage: {
-          required: false,
           type: Boolean
         }
       }

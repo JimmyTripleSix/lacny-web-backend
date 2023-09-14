@@ -14,7 +14,7 @@ const imagePath = __dirname + '/../upload/images/'
 router.use(fileUpload());
 
 module.exports = router;
-router.post('/register', async (req, res) => {
+/*router.post('/register', async (req, res) => {
   const username = '';
   const password = ''
 
@@ -34,7 +34,7 @@ router.post('/register', async (req, res) => {
   } catch (error) {
     res.status(400).json({message: error.message});
   }
-});
+});*/
 
 router.post('/login', async (req, res) => {
   try {
@@ -57,7 +57,8 @@ router.post('/login', async (req, res) => {
       }
     }
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.log('error login: ' + error.message);
+    res.status(400).json({ message: 'error occurred' });
   }
 });
 
@@ -76,7 +77,8 @@ router.put('/page', async (req, res) => {
       }
     })
   } catch (error) {
-    res.status(400).json({message: error.message});
+    console.log('error put page: ' + error.message);
+    res.status(400).json({ message: 'error occurred' });
   }
 })
 
@@ -85,7 +87,8 @@ router.get('/page', async (req, res) => {
     const data = await Page.find();
     res.status(200).json(data);
   } catch (error){
-    res.status(500).json({message: error.message});
+    console.log('error getting pages: ' + error.message);
+    res.status(400).json({ message: 'error occurred' });
   }
 })
 
@@ -94,7 +97,8 @@ router.get('/page/:id', async (req, res) => {
     const data = await Page.findById(req.params.id);
     res.status(200).json(data);
   } catch (error){
-    res.status(500).json({message: error.message});
+    console.log('error getting page: ' + error.message);
+    res.status(400).json({ message: 'error occurred' });
   }
 })
 
@@ -117,7 +121,8 @@ router.patch('/page/:id', async (req, res) => {
       }
     })
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.log('error patch page: ' + error.message);
+    res.status(400).json({ message: 'error occurred' });
   }
 })
 
@@ -135,7 +140,8 @@ router.delete('/page/:id', async (req, res) => {
     })
   }
   catch (error) {
-    res.status(400).json({ message: error.message });
+    console.log('error deleting page: ' + error.message);
+    res.status(400).json({ message: 'error occurred' });
   }
 })
 
@@ -169,41 +175,53 @@ router.post('/image', async (req, res) => {
       }
     })
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.log('error post image: ' + error.message);
+    res.status(400).json({ message: 'error occurred' });
   }
 })
 
 router.get('/image', async (req, res) => {
   try {
     const retArray = [];
-    fs.readdir(imagePath, (err, files) => {
+    fs.readdir(imagePath, (err, directories) => {
       if (err) {
-        console.log('error reading files: ' + err);
+        console.log('error reading directories: ' + err);
         res.status(500).json({ message: 'error occurred' });
       } else {
-        files.forEach((file) => {
-          retArray.push({
-            filename: file,
-            url: '/api/image/' + file
-          });
+        directories.forEach((directory) => {
+          fs.readdir(path.resolve(imagePath + '/' + directory + '/'), (err, files) => {
+            if (err) {
+              console.log('error reading files: ' + err);
+              res.status(500).json({ message: 'error occurred' });
+            } else {
+              files.forEach((file) => {
+                retArray.push({
+                  filename: file,
+                  url: '/api/image/' + directory + '/' + file
+                });
+              })
+              res.status(200).json(retArray);
+            }
+          })
         });
-        res.status(200).json(retArray);
       }
     })
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.log('error getting list of images: ' + error.message)
+    res.status(400).json({ message: 'error occurred' });
   }
 });
 
-router.get('/image/:name', async (req, res) => {
+router.get('/image/:route/:name', async (req, res) => {
   try {
-    if (!fs.existsSync(path.resolve(imagePath + req.params.name))) {
+    if (!fs.existsSync(path.resolve(imagePath + '/' + req.params.route + '/' + req.params.name))) {
       res.status(404).json({ message: 'image doesn\'t exist' })
     } else {
-      res.status(200).sendFile(path.resolve(imagePath + req.params.name));
+      res.status(200).sendFile(path.resolve(imagePath + '/' + req.params.route + '/' + req.params.name));
     }
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.log('error get image: ' + error.message)
+    res.status(400).json({ message: 'error occurred' });
   }
 })
 
@@ -223,6 +241,7 @@ router.delete('/image/:name', async (req, res) => {
       }
     })
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.log('error deleting image: ' + error.message);
+    res.status(400).json({ message: 'error occurred' });
   }
 })
